@@ -51,9 +51,12 @@ bash /content/anima-lora-studio/code/colab_setup.sh
 app.py                 Gradio 双选项卡 WebUI
 tagger.py              Dataset_Maker 打标流程 + 标签清洗
 trainer.py             Anima-Standalone-Trainer 驱动（dataset.toml / CLI / 进程管理）
-vendor/tag_images_by_wd14_tagger.py   取自 kohya-ss/sd-scripts（Apache-2.0）
 colab_setup.sh         一键安装 + 启动 + 隧道
+tests/smoke_tagger.py  打标冒烟测试
 ```
+
+打标脚本本身来自运行期克隆的 `kohya-ss/sd-scripts`（其 `finetune/tag_images_by_wd14_tagger.py`
+需要同仓库的 `library/` 包），本仓库不复制它。
 
 Colab 上的运行期布局：
 
@@ -76,6 +79,6 @@ Colab 上的运行期布局：
 
 ## 许可
 
-本仓库代码 MIT。`vendor/tag_images_by_wd14_tagger.py` 来自
-[kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts)（Apache-2.0）。
+本仓库代码 MIT。打标脚本与训练引擎都在运行期从上游克隆（kohya-ss/sd-scripts、
+Anima-Standalone-Trainer，均 Apache-2.0），本仓库不再分发它们。
 Anima 模型权重受 CircleStone Labs 非商业许可约束（生成图片可商用）。详见 `NOTICE`。

@@ -2,13 +2,15 @@ Third-party notices
 ===================
 
 This repository is a wrapper. It does not reimplement the training or tagging
-engines; it drives other projects' code and, in one case, vendors a single file.
+engines; it drives other projects' code, all of it cloned at runtime — nothing
+upstream is redistributed here.
 
-1. vendor/tag_images_by_wd14_tagger.py
+1. kohya-ss/sd-scripts  (cloned at runtime to /content/sd-scripts)
    Source : https://github.com/kohya-ss/sd-scripts
-   File   : finetune/tag_images_by_wd14_tagger.py
    License: Apache License 2.0
-   Note   : vendored verbatim so the tagger tab does not need a second clone.
+   Note   : provides finetune/tag_images_by_wd14_tagger.py, which the "① 打标"
+            tab runs. The script imports library.dataset / library.utils, so it
+            must be run from that checkout rather than copied out of it.
             It also uses the SmilingWolf WD tagger models (see 4).
 
 2. Anima-Standalone-Trainer  (cloned at runtime, NOT redistributed here)

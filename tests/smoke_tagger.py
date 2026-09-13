@@ -23,7 +23,7 @@ sys.path.insert(0, CODE)
 
 os.environ.setdefault("ALSTUDIO_VENV_PYTHON", "/content/anima-lora-studio/.venv/bin/python")
 os.environ.setdefault("ALSTUDIO_TAGGER_SCRIPT",
-                      os.path.join(CODE, "vendor", "tag_images_by_wd14_tagger.py"))
+                      "/content/sd-scripts/finetune/tag_images_by_wd14_tagger.py")
 
 import tagger  # noqa: E402
 

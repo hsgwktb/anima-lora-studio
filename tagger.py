@@ -67,8 +67,15 @@ def venv_python() -> str:
 
 
 def tagger_script() -> str:
+    """kohya's WD14 tagger. It imports ``library.dataset`` / ``library.utils``, so
+    it must run from a full sd-scripts checkout (colab_setup.sh clones one)."""
     return _env("ALSTUDIO_TAGGER_SCRIPT",
-                str(Path(__file__).resolve().parent / "vendor" / "tag_images_by_wd14_tagger.py"))
+                "/content/sd-scripts/finetune/tag_images_by_wd14_tagger.py")
+
+
+def tagger_root() -> str:
+    """Repo root the tagger must run from (its ``library/`` package lives there)."""
+    return str(Path(tagger_script()).resolve().parent.parent)
 
 
 def list_images(image_dir: str) -> list[str]:
@@ -135,7 +142,11 @@ def tag_images(
             cmd += extras.split()
 
         log_lines.append("\n$ " + " ".join(cmd))
-        proc = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+        env = dict(os.environ)
+        root = tagger_root()
+        env["PYTHONPATH"] = root + os.pathsep + env.get("PYTHONPATH", "")
+        proc = subprocess.run(cmd, capture_output=True, text=True, errors="replace",
+                              cwd=root, env=env)
         tail = (proc.stdout or "")[-4000:] + (proc.stderr or "")[-4000:]
         log_lines.append(tail.strip())
         if proc.returncode != 0:

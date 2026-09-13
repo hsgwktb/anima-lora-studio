@@ -20,6 +20,8 @@ PYVER="${ALSTUDIO_PYVER:-3.12}"
 PORT="${ALSTUDIO_PORT:-8000}"
 REPO_URL="${ALSTUDIO_REPO:-https://github.com/hsgwktb/anima-lora-studio.git}"
 TRAINER_URL="https://github.com/gazingstars123/Anima-Standalone-Trainer.git"
+SDSCRIPTS="${ALSTUDIO_SDSCRIPTS:-/content/sd-scripts}"
+SDSCRIPTS_URL="https://github.com/kohya-ss/sd-scripts.git"
 LOG="$ROOT/app.log"
 CFD="$ROOT/cloudflared"
 
@@ -38,6 +40,12 @@ fi
 if [ ! -d "$TRAINER/.git" ]; then
   say "cloning Anima-Standalone-Trainer"
   git clone --depth 1 -q "$TRAINER_URL" "$TRAINER"
+fi
+# kohya's WD14 tagger imports library.dataset / library.utils, so it needs a full
+# sd-scripts checkout to run from (the trainer fork dropped those modules).
+if [ ! -d "$SDSCRIPTS/.git" ]; then
+  say "cloning kohya-ss/sd-scripts (WD14 tagger host)"
+  git clone --depth 1 -q "$SDSCRIPTS_URL" "$SDSCRIPTS"
 fi
 
 # ------------------------------------------------------------------------- uv
@@ -121,7 +129,7 @@ ALSTUDIO_ROOT="$ROOT" \
 ALSTUDIO_CODE="$CODE" \
 ALSTUDIO_TRAINER_DIR="$TRAINER" \
 ALSTUDIO_VENV_PYTHON="$VENV/bin/python" \
-ALSTUDIO_TAGGER_SCRIPT="$CODE/vendor/tag_images_by_wd14_tagger.py" \
+ALSTUDIO_TAGGER_SCRIPT="$SDSCRIPTS/finetune/tag_images_by_wd14_tagger.py" \
 nohup python3 -u "$CODE/app.py" --port "$PORT" > "$LOG" 2>&1 &
 
 for i in $(seq 1 40); do
