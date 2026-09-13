@@ -64,7 +64,10 @@ if [ "$NEED_INSTALL" = "1" ]; then
   uv venv --python "$PYVER" "$VENV" || uv venv "$VENV" || { echo "FATAL: venv"; exit 1; }
   "$VENV/bin/python" -V
 
-  vpip() { uv pip install --python "$VENV/bin/python" "$@"; }
+  # unsafe-best-match: the requirements use an extra index (pytorch cu128); uv
+  # otherwise refuses to fall back to PyPI when a package exists on the first
+  # index at a different version (it failed on setuptools==80.0.0 this way).
+  vpip() { uv pip install --python "$VENV/bin/python" --index-strategy unsafe-best-match "$@"; }
 
   # cuda_direct_pkg / wd_parallel_pkg are optional native extras: try them, but
   # never let them abort the install. Index flags are passed explicitly because
