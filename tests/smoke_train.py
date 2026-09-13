@@ -16,7 +16,14 @@ CODE = os.environ.get("ALSTUDIO_CODE", "/content/anima-lora-studio/code")
 ROOT = os.environ.get("ALSTUDIO_ROOT", "/content/anima-lora-studio")
 sys.path.insert(0, CODE)
 
+# The WebUI gets these from colab_setup.sh; set them here so the smoke test runs
+# the trainer with the venv interpreter (system python3 lacks the trainer deps).
+os.environ.setdefault("ALSTUDIO_VENV_PYTHON", "/content/anima-lora-studio/.venv/bin/python")
+os.environ.setdefault("ALSTUDIO_TRAINER_DIR", "/content/Anima-Standalone-Trainer")
+
 import trainer  # noqa: E402
+
+print("trainer python:", trainer.venv_python())
 
 DS = os.path.join(ROOT, "datasets", "smoke")
 JOB = os.path.join(ROOT, "jobs", "smoke")
