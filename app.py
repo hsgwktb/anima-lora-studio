@@ -129,7 +129,7 @@ def do_train(ds_dir, name, rank, alpha, epochs, save_every, lr, optimizer,
     dcfg = os.path.join(jd, "dataset.toml")
     trainer.write_dataset_toml(
         dcfg, ds_dir, resolution=int(resolution), batch_size=int(batch),
-        num_repeats=int(repeats), shuffle_caption=True,
+        num_repeats=int(repeats), shuffle_caption=not use_cache,
     )
     _, argv = trainer.build_train_args(
         image_dir=ds_dir, job_dir=jd, output_name=name, paths=paths,
@@ -141,7 +141,7 @@ def do_train(ds_dir, name, rank, alpha, epochs, save_every, lr, optimizer,
         gradient_accumulation=int(grad_accum),
         gradient_checkpointing=bool(grad_ckpt), blocks_to_swap=int(blocks_to_swap),
         seed=int(seed), max_train_steps=int(max_steps),
-        discrete_flow_shift=float(flow_shift),
+        discrete_flow_shift=float(flow_shift), cache=bool(use_cache),
     )
     log_path = os.path.join(jd, "train.log")
     msg = trainer.start_training(name, trainer.trainer_dir(), argv, log_path)
@@ -270,7 +270,8 @@ def build_ui():
                         with gr.Row():
                             grad_ckpt = gr.Checkbox(value=True, label="gradient_checkpointing (省显存)")
                             blocks_to_swap = gr.Number(value=0, label="blocks_to_swap (0=关)", precision=0)
-                            use_cache = gr.Checkbox(value=True, label="cache latents/TE (推荐)")
+                            use_cache = gr.Checkbox(value=True, label="cache latents/TE（推荐，省显存）",
+                                                    info="勾选时不能 shuffle_caption；取消勾选才会开启 shuffle")
 
                         with gr.Row():
                             train_btn = gr.Button("🚀 开始训练 / start training", variant="primary")

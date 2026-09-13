@@ -103,7 +103,9 @@ def write_dataset_toml(
     keep_tokens: int = 1,
     caption_dropout_rate: float = 0.05,
     caption_tag_dropout_rate: float = 0.0,
-    shuffle_caption: bool = True,
+    # sd-scripts refuses shuffle_caption / caption_tag_dropout_rate while
+    # caching text-encoder outputs, so the default (cache ON) must keep this off.
+    shuffle_caption: bool = False,
     flip_aug: bool = False,
     min_bucket: int = 512,
     max_bucket: int = 1536,
@@ -167,6 +169,7 @@ def build_train_args(
     timestep_sample_method: str = "logit_normal",
     max_token_length: int = 512,
     save_precision: str = "bf16",
+    cache: bool = True,
 ) -> tuple[str, list[str]]:
     """Returns (cwd, argv) for anima_train_network.py."""
     os.makedirs(job_dir, exist_ok=True)
@@ -202,9 +205,6 @@ def build_train_args(
         "--network_dim=%d" % rank,
         "--network_alpha=%d" % alpha,
         "--network_train_unet_only",
-        "--cache_latents_to_disk",
-        "--cache_text_encoder_outputs",
-        "--cache_text_encoder_outputs_to_disk",
         "--timestep_sample_method=%s" % timestep_sample_method,
         "--discrete_flow_shift=%s" % discrete_flow_shift,
         "--qwen3_max_token_length=%d" % max_token_length,
@@ -212,6 +212,12 @@ def build_train_args(
         "--max_data_loader_n_workers=2",
         "--persistent_data_loader_workers",
     ]
+    if cache:
+        # Caching the Qwen3 text-encoder outputs keeps the TE off the GPU during
+        # training (big VRAM saving) at the cost of no caption shuffling.
+        argv += ["--cache_latents_to_disk",
+                 "--cache_text_encoder_outputs",
+                 "--cache_text_encoder_outputs_to_disk"]
     if gradient_checkpointing:
         argv.append("--gradient_checkpointing")
     if gradient_accumulation > 1:
