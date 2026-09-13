@@ -168,7 +168,7 @@ CSS = """
 
 
 def build_ui():
-    with gr.Blocks(title="Anima LoRA Studio", css=CSS, theme=gr.themes.Soft()) as demo:
+    with gr.Blocks(title="Anima LoRA Studio") as demo:
         gr.Markdown(
             "# 🎨 Anima LoRA Studio\n"
             "**① 打标** 用 Dataset_Maker 的 WD14-v3 打标流程（`wd-eva02-large-tagger-v3` + `wd-vit-large-tagger-v3`）"
@@ -313,8 +313,10 @@ def main():
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--share", action="store_true")
     args = ap.parse_args()
+    # Gradio >= 6 moved theme/css from Blocks() onto launch().
     build_ui().queue().launch(server_name=args.host, server_port=args.port,
-                              share=args.share, allowed_paths=[ROOT])
+                              share=args.share, allowed_paths=[ROOT],
+                              theme=gr.themes.Soft(), css=CSS)
 
 
 if __name__ == "__main__":

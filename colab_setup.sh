@@ -134,7 +134,7 @@ say "starting cloudflared quick tunnel"
 pkill -f "cloudflared tunnel --url http://127.0.0.1:$PORT" 2>/dev/null
 nohup "$CFD" tunnel --url "http://127.0.0.1:$PORT" --no-autoupdate > "$ROOT/tunnel.log" 2>&1 &
 for i in $(seq 1 30); do
-  URL=$(grep -o 'https://[a-z0-9-]*\.trycloudflare\.com' "$ROOT/tunnel.log" | head -1)
+  URL=$(grep -a -o 'https://[a-z0-9-]*\.trycloudflare\.com' "$ROOT/tunnel.log" | head -1)
   [ -n "${URL:-}" ] && break
   sleep 2
 done
