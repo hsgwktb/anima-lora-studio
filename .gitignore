@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+*.log
+*.safetensors
+datasets/
+jobs/
+.ipynb_checkpoints/
+ref/
+dm.ipynb

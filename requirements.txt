@@ -1,0 +1,8 @@
+# UI-side requirements (run on Colab's *system* python so it never collides
+# with the trainer's pinned torch/transformers stack).
+gradio>=5.0
+
+# NOTE: the training/tagging dependencies are NOT here. They live in
+# Anima-Standalone-Trainer/requirements.txt and are installed into
+# /content/anima-lora-studio/.venv by colab_setup.sh, which also adds
+# onnx + onnxruntime-gpu for the WD14-v3 tagger.

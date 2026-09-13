@@ -1,0 +1,39 @@
+Third-party notices
+===================
+
+This repository is a wrapper. It does not reimplement the training or tagging
+engines; it drives other projects' code and, in one case, vendors a single file.
+
+1. vendor/tag_images_by_wd14_tagger.py
+   Source : https://github.com/kohya-ss/sd-scripts
+   File   : finetune/tag_images_by_wd14_tagger.py
+   License: Apache License 2.0
+   Note   : vendored verbatim so the tagger tab does not need a second clone.
+            It also uses the SmilingWolf WD tagger models (see 4).
+
+2. Anima-Standalone-Trainer  (cloned at runtime, NOT redistributed here)
+   Source : https://github.com/gazingstars123/Anima-Standalone-Trainer
+   License: Apache License 2.0
+   Note   : provides anima_train_network.py / library/ / networks/lora_anima.py,
+            which is what the "② 训练" tab drives. It is itself built on
+            kohya-ss/sd-scripts.
+
+3. Dataset_Maker  (recipe reference, NOT redistributed)
+   Source : https://github.com/hollowstrawberry/kohya-colab
+   Note   : the tagging command line, the default tag blacklist and the
+            "Both taggers" merge behaviour in tagger.py follow Dataset_Maker's
+            Dataset_Maker.ipynb. Its LICENSE (AGPL-3.0) covers that notebook;
+            this repository only re-implements the same parameter set against
+            the upstream kohya script, and contains none of its code or assets.
+
+4. SmilingWolf WD tagger models (downloaded at runtime)
+   wd-eva02-large-tagger-v3 / wd-vit-large-tagger-v3 / wd-swinv2-tagger-v3
+   Source : https://huggingface.co/SmilingWolf
+   License: see each model card (Apache-2.0 for the taggers).
+
+5. Anima model weights (downloaded at runtime, NOT redistributed)
+   Source : https://huggingface.co/circlestone-labs/Anima
+   License: CircleStone Labs Non-Commercial License; the model is additionally a
+            Derivative Model of Cosmos-Predict2-2B-Text2Image and is subject to
+            the NVIDIA Open Model License Agreement insofar as it applies.
+            Non-commercial restriction applies to the Model, not to outputs.
