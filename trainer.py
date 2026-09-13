@@ -26,13 +26,16 @@ import sys
 import time
 from pathlib import Path
 
+# Repo-relative paths inside huggingface.co/circlestone-labs/Anima. The ComfyUI
+# split files live under split_files/, not at the repo root.
 MODELS = {
-    "dit": "anima-base-v1.0.safetensors",
-    "te": "qwen_3_06b_base.safetensors",
-    "vae": "qwen_image_vae.safetensors",
+    "dit": "split_files/diffusion_models/anima-base-v1.0.safetensors",
+    "te": "split_files/text_encoders/qwen_3_06b_base.safetensors",
+    "vae": "split_files/vae/qwen_image_vae.safetensors",
 }
 HF_REPO = "circlestone-labs/Anima"
 HF_BASE = "https://huggingface.co/%s/resolve/main/" % HF_REPO
+MIN_MODEL_BYTES = 10_000_000  # anything smaller is an error page, not weights
 
 _PROCS: dict[str, subprocess.Popen] = {}
 
@@ -58,11 +61,11 @@ def models_dir() -> str:
 
 def model_paths() -> dict:
     d = models_dir()
-    return {k: os.path.join(d, v) for k, v in MODELS.items()}
+    return {k: os.path.join(d, os.path.basename(v)) for k, v in MODELS.items()}
 
 
 def models_ready() -> bool:
-    return all(os.path.exists(p) and os.path.getsize(p) > 10_000_000
+    return all(os.path.exists(p) and os.path.getsize(p) > MIN_MODEL_BYTES
                for p in model_paths().values())
 
 
@@ -70,18 +73,24 @@ def download_models(log_path: str | None = None) -> str:
     """Fetch the three ComfyUI-format Anima files. Idempotent (curl -C -)."""
     d = models_dir()
     lines = []
-    for name in MODELS.values():
-        dest = os.path.join(d, name)
-        if os.path.exists(dest) and os.path.getsize(dest) > 10_000_000:
-            lines.append("have %s (%.2f GB)" % (name, os.path.getsize(dest) / 1e9))
+    for rel in MODELS.values():
+        dest = os.path.join(d, os.path.basename(rel))
+        if os.path.exists(dest) and os.path.getsize(dest) > MIN_MODEL_BYTES:
+            lines.append("have %s (%.2f GB)" % (os.path.basename(dest), os.path.getsize(dest) / 1e9))
             continue
-        cmd = ["curl", "-L", "-C", "-", "--retry", "3", "-o", dest, HF_BASE + name]
+        # A previous failed attempt may have left an error page behind; resuming
+        # onto it (curl -C -) would produce a corrupt file.
+        if os.path.exists(dest) and os.path.getsize(dest) <= MIN_MODEL_BYTES:
+            os.remove(dest)
+        cmd = ["curl", "-L", "-C", "-", "--retry", "3", "-o", dest, HF_BASE + rel]
         lines.append("$ " + " ".join(cmd))
         p = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
-        if p.returncode != 0:
-            lines.append("ERROR downloading %s:\n%s" % (name, (p.stderr or "")[-800:]))
+        size = os.path.getsize(dest) if os.path.exists(dest) else 0
+        if p.returncode != 0 or size <= MIN_MODEL_BYTES:
+            lines.append("ERROR downloading %s (rc=%s, %d bytes)\n%s"
+                         % (rel, p.returncode, size, (p.stderr or "")[-500:]))
             return "\n".join(lines)
-        lines.append("got %s (%.2f GB)" % (name, os.path.getsize(dest) / 1e9))
+        lines.append("got %s (%.2f GB)" % (os.path.basename(dest), size / 1e9))
     return "\n".join(lines)
 
 
