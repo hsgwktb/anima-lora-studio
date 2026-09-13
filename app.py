@@ -314,8 +314,7 @@ def main():
     ap.add_argument("--share", action="store_true")
     args = ap.parse_args()
     build_ui().queue().launch(server_name=args.host, server_port=args.port,
-                              share=args.share, show_api=False,
-                              allowed_paths=[ROOT])
+                              share=args.share, allowed_paths=[ROOT])
 
 
 if __name__ == "__main__":

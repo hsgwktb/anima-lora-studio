@@ -51,8 +51,11 @@ command -v uv >/dev/null 2>&1 || { echo "FATAL: uv unavailable"; exit 1; }
 echo "uv: $(uv --version)"
 
 # --------------------------------------------------------------------- install
+# A half-built venv (Colab's ensurepip failure leaves bin/python behind) must not
+# count as installed, so success is recorded in a marker file.
+MARKER="$VENV/.alstudio-installed"
 NEED_INSTALL=0
-[ -x "$VENV/bin/python" ] || NEED_INSTALL=1
+[ -f "$MARKER" ] || NEED_INSTALL=1
 [ "${1:-}" = "--install" ] && NEED_INSTALL=1
 
 if [ "$NEED_INSTALL" = "1" ]; then
@@ -90,6 +93,7 @@ for m in ("torch", "transformers", "diffusers", "accelerate", "onnxruntime", "sa
     except Exception as e:
         print("  %-14s MISSING (%s)" % (m, e))
 PY
+  touch "$MARKER"
 else
   echo "venv already present ($VENV) — pass --install to rebuild"
 fi
