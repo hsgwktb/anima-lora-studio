@@ -51,11 +51,11 @@ def sh(cmd, check=False, timeout=None, cwd=None, stream=False):
     return p.returncode, out
 
 print("Python :", sys.version.split()[0], " (脚本本身只要 3.x；训练跑在 venv 的 3.12 里)")
-print("GPU    :", sh("nvidia-smi --query-gpu=name,memory.total --format=csv,noheader")[1].strip() or "(未检测到 GPU)")
+print("GPU    :", sh("nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null")[1].strip() or "(未检测到 GPU)")
 print("内存   :", sh("free -g | awk 'NR==2{print $2\" GB 总 / \"$7\" GB 可用\"}'")[1].strip())
 print("磁盘   :", sh("df -h /content | awk 'NR==2{print $4\" 可用\"}'")[1].strip())
 print("Node   :", sh("node --version")[1].strip() or "(无)")
-if not sh("nvidia-smi -L")[1].strip():
+if not sh("nvidia-smi -L 2>/dev/null")[1].strip():
     print("\n⚠️ 没有 GPU。菜单「代码执行程序 → 更改运行时类型 → L4 / T4 GPU」后重跑本格。")
 '''
 
